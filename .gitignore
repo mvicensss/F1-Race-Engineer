@@ -1,0 +1,28 @@
+# nodejs dependencies (for collector)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# python enviroment and chache
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+.ipynb_checkpoints/
+
+# telemetry and datasets
+# Ignoramos todos los archivos de datos masivos
+*.bin
+*.jsonl
+*.csv
+*.parquet
+
+.DS_Store
+Thumbs.db
+
+.idea
+
+# enviroment variables
+.env
