@@ -15,6 +15,15 @@ import {
   PACKET_TYPES,
 } from './constants/packetTypes';
 
+import WebSocket from 'ws';
+
+//start ws server at port 8080
+const wss = new WebSocket.Server({ port: 8080 });
+
+//setup connection
+wss.on('connection', function connection(ws) {
+  console.log('Python client connected to WebSocket server');
+})
 /**
  *
  */
@@ -91,6 +100,19 @@ class F12018UDP extends EventEmitter {
     if (Parser !== null) {
       const packetData = new Parser(buffer);
       this.emit(PACKET_TYPES[m_packetId], packetData.data);
+
+      //broadcast via websocket
+      const payload = JSON.stringify({
+        type: PACKET_TYPES[m_packetId],
+        data: packetData.data
+      });
+
+      //iterate through all connected clients and send the payload
+      wss.clients.forEach(function each(client) {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(payload);
+        }
+      });
     }
   }
 
@@ -117,3 +139,6 @@ class F12018UDP extends EventEmitter {
 }
 
 export default F12018UDP;
+
+const collector = new F12018UDP();
+collector.start();
