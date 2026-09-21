@@ -1,5 +1,4 @@
 import dgram from 'dgram';
-import EventEmitter from 'events';
 import PacketHeader from './parsers/PacketHeader';
 import PacketSessionData from './parsers/PacketSessionData';
 import PacketMotionData from './parsers/PacketMotionData';
@@ -17,19 +16,14 @@ import {
 
 import WebSocket from 'ws';
 
-//start ws server at port 8080
 const wss = new WebSocket.Server({ port: 8080 });
 
-//setup connection
-wss.on('connection', function connection(ws) {
-  console.log('Python client connected to WebSocket server');
-})
-/**
- *
- */
-class F12018UDP extends EventEmitter {
+wss.on('connection', function connection() {
+  console.log('Client connected to WebSocket server on :8080');
+});
+
+class F12018UDP {
   constructor(opts = {}) {
-    super(opts);
     const {
       port = 20777,
     } = opts;
@@ -99,15 +93,11 @@ class F12018UDP extends EventEmitter {
 
     if (Parser !== null) {
       const packetData = new Parser(buffer);
-      this.emit(PACKET_TYPES[m_packetId], packetData.data);
-
-      //broadcast via websocket
       const payload = JSON.stringify({
         type: PACKET_TYPES[m_packetId],
-        data: packetData.data
+        data: packetData.data,
       });
 
-      //iterate through all connected clients and send the payload
       wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
           client.send(payload);
